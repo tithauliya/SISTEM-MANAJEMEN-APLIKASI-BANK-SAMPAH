@@ -1,0 +1,553 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
+ */
+package Login;
+
+import Login.Nasabah;
+import Login.Saldo;
+import java.awt.Frame;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author HP
+ */
+public class editkelolaNASABAH extends javax.swing.JDialog {
+
+    /**
+     * Creates new form INSERTKELOLANASABAH
+     */
+    private EntityManagerFactory emf;
+    private EntityManager em;
+
+    public void connect() {
+        try {
+            emf = Persistence.createEntityManagerFactory("BANK_SAMPAHPU");
+            em = emf.createEntityManager();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Koneksi gagal: " + e.getMessage());
+        }
+    }
+
+    String idNasabahLama, namaNasabahLama, alamatNasabahLama, teleponLama,
+            usernameNasabahLama, passwordNasabahLama, namaIbuLama, saldoLama;
+
+    public editkelolaNASABAH(Frame parent, boolean modal,
+            String idNasabahLama, String namaNasabahLama,
+            String alamatNasabahLama, String teleponLama,
+            String usernameNasabahLama, String passwordNasabahLama, String namaIbuLama,
+            String saldoLama) {
+
+        super(parent, modal);
+        initComponents();
+        connect();
+
+        this.idNasabahLama = idNasabahLama;
+        this.namaNasabahLama = namaNasabahLama;
+        this.alamatNasabahLama = alamatNasabahLama;
+        this.teleponLama = teleponLama;
+        this.usernameNasabahLama = usernameNasabahLama;
+        this.passwordNasabahLama = passwordNasabahLama;
+        this.namaIbuLama = namaIbuLama;
+        this.saldoLama = saldoLama;
+
+        textNASABAH.setText(idNasabahLama);
+        textNAMALENGKAP.setText(namaNasabahLama);
+        textALAMAT.setText(alamatNasabahLama);
+        textTELEPON.setText(teleponLama);
+        textNAMAIBU.setText(namaIbuLama);
+        textNAMAPENGGUNA.setText(usernameNasabahLama);
+        textKATASANDI.setText(passwordNasabahLama);
+        textSALDO.setText(saldoLama);
+    }
+
+    public editkelolaNASABAH(KELOLANASABAH parent, boolean modal) {
+        super(parent, modal);
+        initComponents();
+        connect();
+        setLocationRelativeTo(null);
+    }
+
+    public void bersih() {
+        textNASABAH.setText("");
+        textNAMALENGKAP.setText("");
+        textALAMAT.setText("");
+        textTELEPON.setText("");
+        textNAMAPENGGUNA.setText("");
+        textKATASANDI.setText("");
+        textNAMAIBU.setText("");
+        textSALDO.setText("");
+
+    }
+
+    private boolean validasiInput() {
+        if (textNASABAH.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "ID Nasabah harus diisi");
+            textNASABAH.requestFocus();
+            return false;
+        }
+        if (textNAMALENGKAP.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nama lengkap harus diisi");
+            textNAMALENGKAP.requestFocus();
+            return false;
+        }
+        if (textNAMAPENGGUNA.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nama pengguna harus diisi");
+            textNAMAPENGGUNA.requestFocus();
+            return false;
+        }
+        if (textALAMAT.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Alamat harus diisi");
+            textALAMAT.requestFocus();
+            return false;
+
+        }
+        if (textALAMAT.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Alamat harus diisi");
+            textALAMAT.requestFocus();
+            return false;
+        }
+        if (textKATASANDI.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Kata sandi harus diisi");
+            textKATASANDI.requestFocus();
+            return false;
+        }
+
+        String tel = textTELEPON.getText().trim();
+        if (!tel.isEmpty()) {
+            if (!tel.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Telepon harus berisi angka saja");
+                textTELEPON.requestFocus();
+                return false;
+            }
+        }
+
+        String saldoText = textSALDO.getText().trim();
+        if (!saldoText.isEmpty()) {
+            try {
+                Double.parseDouble(saldoText);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Saldo harus berupa angka (contoh: 1000 atau 1000.00)");
+                textSALDO.requestFocus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean usernameExists(String username) {
+        try {
+            Long cnt = em.createQuery(
+                    "SELECT COUNT(n) FROM Nasabah n WHERE n.usernameNasabah = :u", Long.class)
+                    .setParameter("u", username)
+                    .getSingleResult();
+            return cnt != null && cnt > 0;
+        } catch (Exception ex) {
+            // jika error, anggap tidak ada untuk menghindari false positive
+            return false;
+        }
+    }
+
+    private Integer getNextIdNasabah() {
+        try {
+            Integer next = em.createQuery("SELECT COALESCE(MAX(n.idNasabah), 0) + 1 FROM Nasabah n", Integer.class)
+                    .getSingleResult();
+            return next;
+        } catch (Exception ex) {
+            return 1;
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        textTELEPON = new javax.swing.JTextField();
+        textSALDO = new javax.swing.JTextField();
+        textNAMALENGKAP = new javax.swing.JTextField();
+        textNASABAH = new javax.swing.JTextField();
+        textNAMAPENGGUNA = new javax.swing.JTextField();
+        textKATASANDI = new javax.swing.JTextField();
+        textNAMAIBU = new javax.swing.JTextField();
+        jButtonSIMPAN = new javax.swing.JButton();
+        jButtonBATAL = new javax.swing.JButton();
+        textALAMAT = new javax.swing.JTextField();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        textTELEPON.setBackground(new java.awt.Color(204, 255, 153));
+        textTELEPON.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textTELEPON.setForeground(new java.awt.Color(0, 0, 0));
+        textTELEPON.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textTELEPON.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textTELEPONActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textTELEPON, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 320, 270, 40));
+
+        textSALDO.setBackground(new java.awt.Color(255, 255, 255));
+        textSALDO.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textSALDO.setForeground(new java.awt.Color(0, 0, 0));
+        textSALDO.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textSALDO.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textSALDOActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textSALDO, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 330, 270, 40));
+
+        textNAMALENGKAP.setBackground(new java.awt.Color(204, 255, 153));
+        textNAMALENGKAP.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textNAMALENGKAP.setForeground(new java.awt.Color(0, 0, 0));
+        textNAMALENGKAP.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textNAMALENGKAP.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textNAMALENGKAPActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textNAMALENGKAP, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, 270, 40));
+
+        textNASABAH.setBackground(new java.awt.Color(204, 255, 153));
+        textNASABAH.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textNASABAH.setForeground(new java.awt.Color(0, 0, 0));
+        textNASABAH.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textNASABAH.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textNASABAHActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textNASABAH, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 270, 40));
+
+        textNAMAPENGGUNA.setBackground(new java.awt.Color(204, 255, 153));
+        textNAMAPENGGUNA.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textNAMAPENGGUNA.setForeground(new java.awt.Color(0, 0, 0));
+        textNAMAPENGGUNA.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textNAMAPENGGUNA.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textNAMAPENGGUNAActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textNAMAPENGGUNA, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 110, 270, 40));
+
+        textKATASANDI.setBackground(new java.awt.Color(204, 255, 153));
+        textKATASANDI.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textKATASANDI.setForeground(new java.awt.Color(0, 0, 0));
+        textKATASANDI.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textKATASANDI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textKATASANDIActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textKATASANDI, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 180, 270, 40));
+
+        textNAMAIBU.setBackground(new java.awt.Color(204, 255, 153));
+        textNAMAIBU.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textNAMAIBU.setForeground(new java.awt.Color(0, 0, 0));
+        textNAMAIBU.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textNAMAIBU.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textNAMAIBUActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textNAMAIBU, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 250, 270, 40));
+
+        jButtonSIMPAN.setBackground(new java.awt.Color(0, 51, 0));
+        jButtonSIMPAN.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
+        jButtonSIMPAN.setForeground(new java.awt.Color(255, 255, 255));
+        jButtonSIMPAN.setText("SIMPAN");
+        jButtonSIMPAN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSIMPANActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButtonSIMPAN, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 400, 130, 40));
+
+        jButtonBATAL.setBackground(new java.awt.Color(0, 51, 0));
+        jButtonBATAL.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
+        jButtonBATAL.setForeground(new java.awt.Color(255, 255, 255));
+        jButtonBATAL.setText("BATAL");
+        jButtonBATAL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBATALActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButtonBATAL, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 400, 130, 40));
+
+        textALAMAT.setBackground(new java.awt.Color(204, 255, 153));
+        textALAMAT.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 12)); // NOI18N
+        textALAMAT.setForeground(new java.awt.Color(0, 0, 0));
+        textALAMAT.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textALAMAT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textALAMATActionPerformed(evt);
+            }
+        });
+        getContentPane().add(textALAMAT, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 250, 270, 40));
+
+        jLabel18.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel18.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel18.setText("Alamat Nasabah");
+        getContentPane().add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, -1, 20));
+
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/foto/Group 150.png"))); // NOI18N
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, -1, 50));
+
+        jLabel17.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel17.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel17.setText("Nama Ibu Nasabah");
+        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 230, -1, 20));
+
+        jLabel16.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel16.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 18)); // NOI18N
+        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel16.setText("TOTAL SALDO NASABAH");
+        getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 300, -1, 20));
+
+        jLabel15.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel15.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel15.setText("Kata Sandi Nasabah");
+        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 160, -1, 20));
+
+        jLabel14.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel14.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel14.setText("ID Nasabah");
+        getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, 20));
+
+        jLabel13.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel13.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel13.setText("Nama Lengkap Nasabah");
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, -1, 20));
+
+        jLabel12.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel12.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setText("Nama Pengguna Nasabah");
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 90, -1, 20));
+
+        jLabel11.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel11.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 14)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel11.setText("NO Telepon Nasabah");
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, -1, 20));
+
+        jLabel8.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel8.setFont(new java.awt.Font("Gabriola", 1, 12)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("BANK SAMPAH - KELOLA NASABAH");
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 20, -1, 20));
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/foto/LOGO BANK SAMPAH.png"))); // NOI18N
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 127, 80));
+
+        jLabel7.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel7.setFont(new java.awt.Font("Franklin Gothic Medium", 1, 18)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel7.setText("EDIT DATA NASABAH");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 30, -1, -1));
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/foto/Group 149.png"))); // NOI18N
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void textTELEPONActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textTELEPONActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textTELEPONActionPerformed
+
+    private void textSALDOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textSALDOActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textSALDOActionPerformed
+
+    private void textNAMALENGKAPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textNAMALENGKAPActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textNAMALENGKAPActionPerformed
+
+    private void textNASABAHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textNASABAHActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textNASABAHActionPerformed
+
+    private void textNAMAPENGGUNAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textNAMAPENGGUNAActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textNAMAPENGGUNAActionPerformed
+
+    private void textKATASANDIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textKATASANDIActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textKATASANDIActionPerformed
+
+    private void textNAMAIBUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textNAMAIBUActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textNAMAIBUActionPerformed
+
+    private void jButtonSIMPANActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSIMPANActionPerformed
+        if (!validasiInput()) {
+            return;
+        }
+
+        try {
+            em.getTransaction().begin();
+
+            Nasabah n = em.find(Nasabah.class, Integer.parseInt(textNASABAH.getText()));
+
+            // CEK kalau nasabah tidak ditemukan
+            if (n == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Nasabah dengan ID ini tidak ditemukan!");
+                em.getTransaction().rollback();
+                return;
+            }
+
+            n.setNamaNasabah(textNAMALENGKAP.getText());
+            n.setAlamatNasabah(textALAMAT.getText());
+            n.setTelepon(textTELEPON.getText());
+            n.setUsernameNasabah(textNAMAPENGGUNA.getText());
+            n.setPasswordNasabah(textKATASANDI.getText());
+            n.setNamaIbu(textNAMAIBU.getText());
+
+            Saldo s = null;
+            try {
+                s = em.createQuery(
+                        "SELECT s FROM Saldo s WHERE s.idNasabah.idNasabah = :id",
+                        Saldo.class
+                ).setParameter("id", n.getIdNasabah())
+                        .getSingleResult();
+            } catch (Exception ex) {
+                s = null;
+            }
+
+            if (s == null) {
+                s = new Saldo();
+                s.setIdNasabah(n);
+                s.setTotalSaldo(new java.math.BigInteger(textSALDO.getText()));
+                em.persist(s);
+            } else {
+                s.setTotalSaldo(new java.math.BigInteger(textSALDO.getText()));
+            }
+
+            em.getTransaction().commit();
+
+            JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
+            this.dispose();
+
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan: " + e.getMessage());
+        }
+    }//GEN-LAST:event_jButtonSIMPANActionPerformed
+
+    private void jButtonBATALActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBATALActionPerformed
+        bersih();
+    }//GEN-LAST:event_jButtonBATALActionPerformed
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        bersih();
+        this.dispose();
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void textALAMATActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textALAMATActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textALAMATActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(editkelolaNASABAH.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(editkelolaNASABAH.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(editkelolaNASABAH.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(editkelolaNASABAH.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//        //</editor-fold>
+//
+//        /* Create and display the dialog */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                editkelolaNASABAH dialog = new editkelolaNASABAH(new javax.swing.JFrame(), true);
+//                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+//                    @Override
+//                    public void windowClosing(java.awt.event.WindowEvent e) {
+//                        System.exit(0);
+//                    }
+//                });
+//                dialog.setVisible(true);
+//            }
+//        });
+//    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonBATAL;
+    private javax.swing.JButton jButtonSIMPAN;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JTextField textALAMAT;
+    private javax.swing.JTextField textKATASANDI;
+    private javax.swing.JTextField textNAMAIBU;
+    private javax.swing.JTextField textNAMALENGKAP;
+    private javax.swing.JTextField textNAMAPENGGUNA;
+    private javax.swing.JTextField textNASABAH;
+    private javax.swing.JTextField textSALDO;
+    private javax.swing.JTextField textTELEPON;
+    // End of variables declaration//GEN-END:variables
+}
