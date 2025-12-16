@@ -1,0 +1,373 @@
+/*==============================================================*/
+/* DBMS name:      PostgreSQL 9.x                               */
+/* Created on:     16/12/2025 16:10:37                          */
+/*==============================================================*/
+
+
+drop index JENIS_SAMPAH_PK;
+
+drop table JENIS_SAMPAH;
+
+drop index MITRA_JUAL_PK;
+
+drop table MITRA_JUAL;
+
+drop index MEMPUNYAI_FK;
+
+drop index NASABAH_PK;
+
+drop table NASABAH;
+
+drop index DIOLAH_FK;
+
+drop index MENGOLAH_FK;
+
+drop index PENGOLAHAN_PK;
+
+drop table PENGOLAHAN;
+
+drop index MEMBELI_FK;
+
+drop index PENJUALAN_FK;
+
+drop index PENJUALAN_MITRA_PK;
+
+drop table PENJUALAN_MITRA;
+
+drop index PETUGAS_PK;
+
+drop table PETUGAS;
+
+drop index MEMPUNYAI2_FK;
+
+drop index SALDO_PK;
+
+drop table SALDO;
+
+drop index MELAKUKAN_FK;
+
+drop index MENAMPILKAN_FK;
+
+drop index MENCATAT_FK;
+
+drop index SETORAN_PK;
+
+drop table SETORAN;
+
+drop index MEMASOK_FK;
+
+drop index MENYALURKAN_FK;
+
+drop index STOCK_GUDANG_PK;
+
+drop table STOCK_GUDANG;
+
+/*==============================================================*/
+/* Table: JENIS_SAMPAH                                          */
+/*==============================================================*/
+create table JENIS_SAMPAH (
+   ID_JENISSAMPAH       INT4                 not null,
+   NAMA_SAMPAH          VARCHAR(50)          null,
+   KATEGORI             VARCHAR(50)          null,
+   HARGA_PER_KG         DECIMAL              null,
+   constraint PK_JENIS_SAMPAH primary key (ID_JENISSAMPAH)
+);
+
+/*==============================================================*/
+/* Index: JENIS_SAMPAH_PK                                       */
+/*==============================================================*/
+create unique index JENIS_SAMPAH_PK on JENIS_SAMPAH (
+ID_JENISSAMPAH
+);
+
+/*==============================================================*/
+/* Table: MITRA_JUAL                                            */
+/*==============================================================*/
+create table MITRA_JUAL (
+   ID_MITRA             INT4                 not null,
+   NAMA_MITRA           VARCHAR(50)          null,
+   ALAMAT_MITRA         VARCHAR(50)          null,
+   TELPON_MITRA         VARCHAR(14)          null,
+   JENIS_KERJA_SAMA     VARCHAR(50)          null,
+   constraint PK_MITRA_JUAL primary key (ID_MITRA)
+);
+
+/*==============================================================*/
+/* Index: MITRA_JUAL_PK                                         */
+/*==============================================================*/
+create unique index MITRA_JUAL_PK on MITRA_JUAL (
+ID_MITRA
+);
+
+/*==============================================================*/
+/* Table: NASABAH                                               */
+/*==============================================================*/
+create table NASABAH (
+   ID_NASABAH           INT4                 not null,
+   ID_SALDO             INT4                 null,
+   NAMA_NASABAH         VARCHAR(50)          null,
+   ALAMAT_NASABAH       VARCHAR(50)          null,
+   TELEPON              VARCHAR(14)          null,
+   USERNAME_NASABAH     VARCHAR(50)          null,
+   PASSWORD_NASABAH     VARCHAR(10)          null,
+   constraint PK_NASABAH primary key (ID_NASABAH)
+);
+
+/*==============================================================*/
+/* Index: NASABAH_PK                                            */
+/*==============================================================*/
+create unique index NASABAH_PK on NASABAH (
+ID_NASABAH
+);
+
+/*==============================================================*/
+/* Index: MEMPUNYAI_FK                                          */
+/*==============================================================*/
+create  index MEMPUNYAI_FK on NASABAH (
+ID_SALDO
+);
+
+/*==============================================================*/
+/* Table: PENGOLAHAN                                            */
+/*==============================================================*/
+create table PENGOLAHAN (
+   ID_PENGOLAHAN        INT4                 not null,
+   ID_JENISSAMPAH       INT4                 null,
+   ID_PETUGAS           INT4                 null,
+   HASIL_PENGOLAHAN     VARCHAR(50)          null,
+   BERAT_HASIL_PENGOLAHAN VARCHAR(50)          null,
+   TANGGAL_PENGOLAHAN   DATE                 null,
+   METODE_PENGOLAHAN    VARCHAR(50)          null,
+   constraint PK_PENGOLAHAN primary key (ID_PENGOLAHAN)
+);
+
+/*==============================================================*/
+/* Index: PENGOLAHAN_PK                                         */
+/*==============================================================*/
+create unique index PENGOLAHAN_PK on PENGOLAHAN (
+ID_PENGOLAHAN
+);
+
+/*==============================================================*/
+/* Index: MENGOLAH_FK                                           */
+/*==============================================================*/
+create  index MENGOLAH_FK on PENGOLAHAN (
+ID_PETUGAS
+);
+
+/*==============================================================*/
+/* Index: DIOLAH_FK                                             */
+/*==============================================================*/
+create  index DIOLAH_FK on PENGOLAHAN (
+ID_JENISSAMPAH
+);
+
+/*==============================================================*/
+/* Table: PENJUALAN_MITRA                                       */
+/*==============================================================*/
+create table PENJUALAN_MITRA (
+   ID_PENJUALAN_MITRA   INT4                 not null,
+   ID_PENGOLAHAN        INT4                 null,
+   ID_MITRA             INT4                 null,
+   TANGGAL_PENJUALAN_MITRA DATE                 null,
+   BERAT_KG_PENJUALAN_MITRA DECIMAL              null,
+   TOTAL_HARGA_PENJUALAN_MITRA DECIMAL              null,
+   constraint PK_PENJUALAN_MITRA primary key (ID_PENJUALAN_MITRA)
+);
+
+/*==============================================================*/
+/* Index: PENJUALAN_MITRA_PK                                    */
+/*==============================================================*/
+create unique index PENJUALAN_MITRA_PK on PENJUALAN_MITRA (
+ID_PENJUALAN_MITRA
+);
+
+/*==============================================================*/
+/* Index: PENJUALAN_FK                                          */
+/*==============================================================*/
+create  index PENJUALAN_FK on PENJUALAN_MITRA (
+ID_PENGOLAHAN
+);
+
+/*==============================================================*/
+/* Index: MEMBELI_FK                                            */
+/*==============================================================*/
+create  index MEMBELI_FK on PENJUALAN_MITRA (
+ID_MITRA
+);
+
+/*==============================================================*/
+/* Table: PETUGAS                                               */
+/*==============================================================*/
+create table PETUGAS (
+   ID_PETUGAS           INT4                 not null,
+   NAMA_PETUGAS         VARCHAR(50)          null,
+   USERNAME_PETUGAS     VARCHAR(50)          null,
+   PASSWORD_PETUGAS     VARCHAR(10)          null,
+   constraint PK_PETUGAS primary key (ID_PETUGAS)
+);
+
+/*==============================================================*/
+/* Index: PETUGAS_PK                                            */
+/*==============================================================*/
+create unique index PETUGAS_PK on PETUGAS (
+ID_PETUGAS
+);
+
+/*==============================================================*/
+/* Table: SALDO                                                 */
+/*==============================================================*/
+create table SALDO (
+   ID_SALDO             INT4                 not null,
+   ID_NASABAH           INT4                 null,
+   TOTAL_SALDO          DECIMAL              null,
+   constraint PK_SALDO primary key (ID_SALDO)
+);
+
+/*==============================================================*/
+/* Index: SALDO_PK                                              */
+/*==============================================================*/
+create unique index SALDO_PK on SALDO (
+ID_SALDO
+);
+
+/*==============================================================*/
+/* Index: MEMPUNYAI2_FK                                         */
+/*==============================================================*/
+create  index MEMPUNYAI2_FK on SALDO (
+ID_NASABAH
+);
+
+/*==============================================================*/
+/* Table: SETORAN                                               */
+/*==============================================================*/
+create table SETORAN (
+   ID_SETORAN           INT4                 not null,
+   ID_NASABAH           INT4                 null,
+   ID_JENISSAMPAH       INT4                 null,
+   ID_PETUGAS           INT4                 null,
+   TANGGAL_SETORAN      DATE                 null,
+   BERAT_KG_SETORAN     DECIMAL              null,
+   TOTAL_HARGA_SETORAN  DECIMAL              null,
+   STATUS_SETORAN       VARCHAR(50)          null,
+   constraint PK_SETORAN primary key (ID_SETORAN)
+);
+
+/*==============================================================*/
+/* Index: SETORAN_PK                                            */
+/*==============================================================*/
+create unique index SETORAN_PK on SETORAN (
+ID_SETORAN
+);
+
+/*==============================================================*/
+/* Index: MENCATAT_FK                                           */
+/*==============================================================*/
+create  index MENCATAT_FK on SETORAN (
+ID_PETUGAS
+);
+
+/*==============================================================*/
+/* Index: MENAMPILKAN_FK                                        */
+/*==============================================================*/
+create  index MENAMPILKAN_FK on SETORAN (
+ID_JENISSAMPAH
+);
+
+/*==============================================================*/
+/* Index: MELAKUKAN_FK                                          */
+/*==============================================================*/
+create  index MELAKUKAN_FK on SETORAN (
+ID_NASABAH
+);
+
+/*==============================================================*/
+/* Table: STOCK_GUDANG                                          */
+/*==============================================================*/
+create table STOCK_GUDANG (
+   ID_STOK              INT4                 not null,
+   ID_SETORAN           INT4                 null,
+   ID_PENGOLAHAN        INT4                 null,
+   TANGGAL_MASUK        DATE                 null,
+   BERAT_MASUK          DECIMAL(8)           null,
+   BERAT_TERSEDIA       DECIMAL(8)           null,
+   STATUS_STOK          VARCHAR(20)          null,
+   constraint PK_STOCK_GUDANG primary key (ID_STOK)
+);
+
+/*==============================================================*/
+/* Index: STOCK_GUDANG_PK                                       */
+/*==============================================================*/
+create unique index STOCK_GUDANG_PK on STOCK_GUDANG (
+ID_STOK
+);
+
+/*==============================================================*/
+/* Index: MENYALURKAN_FK                                        */
+/*==============================================================*/
+create  index MENYALURKAN_FK on STOCK_GUDANG (
+ID_PENGOLAHAN
+);
+
+/*==============================================================*/
+/* Index: MEMASOK_FK                                            */
+/*==============================================================*/
+create  index MEMASOK_FK on STOCK_GUDANG (
+ID_SETORAN
+);
+
+alter table NASABAH
+   add constraint FK_NASABAH_MEMPUNYAI_SALDO foreign key (ID_SALDO)
+      references SALDO (ID_SALDO)
+      on delete restrict on update restrict;
+
+alter table PENGOLAHAN
+   add constraint FK_PENGOLAH_DIOLAH_JENIS_SA foreign key (ID_JENISSAMPAH)
+      references JENIS_SAMPAH (ID_JENISSAMPAH)
+      on delete restrict on update restrict;
+
+alter table PENGOLAHAN
+   add constraint FK_PENGOLAH_MENGOLAH_PETUGAS foreign key (ID_PETUGAS)
+      references PETUGAS (ID_PETUGAS)
+      on delete restrict on update restrict;
+
+alter table PENJUALAN_MITRA
+   add constraint FK_PENJUALA_MEMBELI_MITRA_JU foreign key (ID_MITRA)
+      references MITRA_JUAL (ID_MITRA)
+      on delete restrict on update restrict;
+
+alter table PENJUALAN_MITRA
+   add constraint FK_PENJUALA_PENJUALAN_PENGOLAH foreign key (ID_PENGOLAHAN)
+      references PENGOLAHAN (ID_PENGOLAHAN)
+      on delete restrict on update restrict;
+
+alter table SALDO
+   add constraint FK_SALDO_MEMPUNYAI_NASABAH foreign key (ID_NASABAH)
+      references NASABAH (ID_NASABAH)
+      on delete restrict on update restrict;
+
+alter table SETORAN
+   add constraint FK_SETORAN_MELAKUKAN_NASABAH foreign key (ID_NASABAH)
+      references NASABAH (ID_NASABAH)
+      on delete restrict on update restrict;
+
+alter table SETORAN
+   add constraint FK_SETORAN_MENAMPILK_JENIS_SA foreign key (ID_JENISSAMPAH)
+      references JENIS_SAMPAH (ID_JENISSAMPAH)
+      on delete restrict on update restrict;
+
+alter table SETORAN
+   add constraint FK_SETORAN_MENCATAT_PETUGAS foreign key (ID_PETUGAS)
+      references PETUGAS (ID_PETUGAS)
+      on delete restrict on update restrict;
+
+alter table STOCK_GUDANG
+   add constraint FK_STOCK_GU_MEMASOK_SETORAN foreign key (ID_SETORAN)
+      references SETORAN (ID_SETORAN)
+      on delete restrict on update restrict;
+
+alter table STOCK_GUDANG
+   add constraint FK_STOCK_GU_MENYALURK_PENGOLAH foreign key (ID_PENGOLAHAN)
+      references PENGOLAHAN (ID_PENGOLAHAN)
+      on delete restrict on update restrict;
+
